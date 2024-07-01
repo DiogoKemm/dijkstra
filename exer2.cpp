@@ -1,82 +1,88 @@
-#include <string.h>
-#include <stdio.h>
-#include <iostream>
-#define Vertices int
-
-struct Grafo {
-       int v;
-       int a;
-    int rota[501][501];
-};
-
-Grafo grafo;
-
-void dijkstra (int origem, int destino)
-{
-    int w, w0;
-    int fr[501], parnt[501];
-    int cst[501];
-    
-    memset (parnt, -1, sizeof(parnt));
-    memset (cst, 999999, sizeof(cst));
-    
-    fr[origem] = origem;
-    cst[origem] = 0;
-    
-    while(1){
-             int mincst = 999999;
-             for(w = 0; w < grafo.v; w++){
-                   if(parnt[w] == -1 && mincst > cst[w]){
-                               mincst = cst[w0=w];
-                   }
-             }
-             if(mincst == 999999) break;
-             parnt[w0] = fr[w0];     
-             
-             for(w = 0; w < grafo.v; w++){
-                   if(cst[w] > cst[w0] + grafo.rota[w0][w]){
-                               cst[w] = cst[w0] + grafo.rota[w0][w];
-                               fr[w]= w0;
-                   }
-             }
-    }
-             
-             if(cst[destino] <  999999) printf("%d\n", cst[destino]);
-             else printf("Nao e possivel entregar a carta\n");
-}
-
-
+#include <bits/stdc++.h>
+using namespace std;
 
 int main()
 {
-	memset(&grafo, 0, sizeof(grafo));
-	int n,e,k,o,d;
-	int x,y,z;
-    int i, j;
-    
-    while(1){
-             scanf("%d %d", &n, &e);
-             if(n == 0 && e == 0) break;
-             for(i = 0; i <= n; i++)
-                   for(j = 0; j <= n; j++)
-                         grafo.rota[i][j] = 999999;
-             for (i = 0; i < e; ++i){
-                     scanf("%d %d %d",&x, &y, &z);
-                     if(grafo.rota[y][x] != 999999){
-                                    grafo.rota[x][y] = 0;
-                                    grafo.rota[y][x] = 0;
-                     }else{
-                           grafo.rota[x][y] = z;
-                     }
-             }
-             grafo.v = n+1;
-             grafo.a = e;
-             scanf("%d", &k);
-             for (i = 0; i < k; ++i){
-                     scanf("%d %d",&o, &d);
-                               dijkstra(o, d);
-             }
-             printf("\n");
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+
+    const long long INF = numeric_limits<long long>::max();
+    long long n, k;
+    while (cin >> n >> k)
+    {
+        if (n == 0 && k == 0)
+        {
+            break;
+        }
+
+        vector<pair<long long, long long>> adj[n];
+        for (long long i = 0; i < k; i++)
+        {
+            long long a, b, c;
+            cin >> a >> b >> c;
+            a -= 1;
+            b -= 1;
+            adj[a].push_back({b, c});
+            if (adj[b].size() > 0)
+            {
+                for (auto &edge : adj[b])
+                {
+                    if (edge.first == a)
+                    {
+                        edge.second = 0;
+                        for (auto &reverseEdge : adj[a])
+                        {
+                            if (reverseEdge.first == b)
+                            {
+                                reverseEdge.second = 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        long long z;
+        cin >> z;
+        for (long long i = 0; i < z; i++)
+        {
+            vector<long long> distance(n, INF);
+            priority_queue<pair<long long, long long>> q;
+            vector<bool> processed(n, false);
+            long long a, b;
+            cin >> a >> b;
+
+            a -= 1;
+            b -= 1;
+
+            distance[a] = 0;
+            q.push({0, a});
+            while (!q.empty())
+            {
+                long long e = q.top().second;
+                q.pop();
+                if (processed[e])
+                    continue;
+                processed[e] = true;
+                for (auto u : adj[e])
+                {
+                    long long b = u.first, w = u.second;
+                    if (distance[e] + w < distance[b])
+                    {
+                        distance[b] = distance[e] + w;
+                        q.push({-distance[b], b});
+                    }
+                }
+            }
+            if (distance[b] != INF)
+            {
+                cout << distance[b] << "\n";
+            }
+            else
+            {
+                cout << "Nao e possivel entregar a carta" << "\n";
+            }
+        }
+        cout << "\n";
     }
-	return 0;
+    return 0;
 }
